@@ -1,17 +1,13 @@
-import { useTable, useSortBy } from "react-table";
-
-const data = [
-  { id: 1, gender: "Male", salary: 40000 },
-  { id: 2, gender: "FeMale", salary: 4000 },
-  { id: 6, gender: "Male", salary: 20000 },
-  { id: 3, gender: "Male", salary: 30000 },
-  { id: 4, gender: "Male", salary: 35000 },
-  { id: 5, gender: "FeMale", salary: 220000 },
-];
+import { useTable, useSortBy, usePagination } from "react-table";
+import { data } from "./assets/data.json";
 const columns = [
   {
     Header: "ID",
     accessor: "id",
+  },
+  {
+    Header: "Name",
+    accessor: "name",
   },
   {
     Header: "Gender",
@@ -23,14 +19,28 @@ const columns = [
   },
 ];
 const App = () => {
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    useTable(
-      {
-        columns,
-        data,
-      },
-      useSortBy
-    );
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    page,
+    prepareRow,
+    nextPage,
+    previousPage,
+    canPreviousPage,
+    canNextPage,
+    state: { pageIndex },
+    pageCount,
+    gotoPage,
+  } = useTable(
+    {
+      columns,
+      data,
+      initialState: { pageSize: 10, pageIndex: 0 },
+    },
+    useSortBy,
+    usePagination
+  );
   return (
     <div className="container">
       <table {...getTableProps()}>
@@ -54,7 +64,7 @@ const App = () => {
           </tr> */}
         </thead>
         <tbody {...getTableBodyProps()}>
-          {rows.map((row) => {
+          {page.map((row) => {
             prepareRow(row);
             return (
               <tr {...row.getRowProps()}>
@@ -73,6 +83,28 @@ const App = () => {
           ))} */}
         </tbody>
       </table>
+
+      <div className="btn-container">
+        <button disabled={pageIndex === 0} onClick={() => gotoPage(0)}>
+          First
+        </button>
+        <button disabled={!canPreviousPage} onClick={previousPage}>
+          Prev
+        </button>
+
+        <span>
+          {pageIndex + 1} of {pageCount}
+        </span>
+        <button disabled={!canNextPage} onClick={nextPage}>
+          Next
+        </button>
+        <button
+          disabled={pageIndex === pageCount - 1}
+          onClick={() => gotoPage(pageCount - 1)}
+        >
+          Last
+        </button>
+      </div>
     </div>
   );
 };
